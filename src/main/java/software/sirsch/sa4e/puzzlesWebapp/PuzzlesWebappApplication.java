@@ -3,6 +3,11 @@ package software.sirsch.sa4e.puzzlesWebapp;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
+import com.vaadin.flow.component.page.AppShellConfigurator;
+import com.vaadin.flow.component.page.Push;
+import com.vaadin.flow.theme.Theme;
+import com.vaadin.flow.theme.lumo.Lumo;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -12,7 +17,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author sirsch
  */
 @SpringBootApplication
-public class PuzzlesWebappApplication {
+@Theme(themeClass = Lumo.class, variant = Lumo.DARK)
+@Push
+public class PuzzlesWebappApplication implements AppShellConfigurator {
 
 	/**
 	 * Dieses Feld zeigt an, dass es sich nicht um eine Hilfsklasse handelt.
