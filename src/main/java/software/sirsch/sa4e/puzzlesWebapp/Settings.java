@@ -42,6 +42,18 @@ public class Settings {
 	private String clientId;
 
 	/**
+	 * Dieses Feld kann den Benutzernamen enthalten.
+	 */
+	@CheckForNull
+	private String username;
+
+	/**
+	 * Dieses Feld kann das Passwort enthalten.
+	 */
+	@CheckForNull
+	private String password;
+
+	/**
 	 * Dieses Feld kann das Topic enthalten.
 	 */
 	@CheckForNull
@@ -120,6 +132,44 @@ public class Settings {
 	 */
 	public void setClientId(@CheckForNull final String clientId) {
 		this.clientId = clientId;
+	}
+
+	/**
+	 * Diese Methode gibt den Benutzernamen zurück.
+	 *
+	 * @return der Benutzername, falls vorhanden
+	 */
+	@CheckForNull
+	public String getUsername() {
+		return this.username;
+	}
+
+	/**
+	 * Diese Methode legt den Benutzernamen fest.
+	 *
+	 * @param username der zu setzende Benutzername
+	 */
+	public void setUsername(@CheckForNull final String username) {
+		this.username = username;
+	}
+
+	/**
+	 * Diese Methode gibt das Passwort zurück.
+	 *
+	 * @return das Passwort, falls vorhanden
+	 */
+	@CheckForNull
+	public String getPassword() {
+		return this.password;
+	}
+
+	/**
+	 * Diese Methode legt das Passwort fest.
+	 *
+	 * @param password das zu setzende Passwort
+	 */
+	public void setPassword(@CheckForNull final String password) {
+		this.password = password;
 	}
 
 	/**

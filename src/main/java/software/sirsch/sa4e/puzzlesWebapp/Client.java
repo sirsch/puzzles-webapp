@@ -1,10 +1,14 @@
 package software.sirsch.sa4e.puzzlesWebapp;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
 import org.eclipse.paho.mqttv5.client.MqttClient;
+import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.client.persist.MemoryPersistence;
 import org.eclipse.paho.mqttv5.common.MqttException;
+
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 /**
  * Diese Klasse stellt eine vereinfachte Schnittstelle für den Zugriff auf Mqtt bereit.
@@ -60,12 +64,45 @@ public class Client {
 					settings.getClientId(),
 					new MemoryPersistence());
 			this.mqttClient.setCallback(clientCallbackAdapterFactory.create(clientListener));
-			this.mqttClient.connect();
+			this.mqttClient.connect(this.createConnectOptions(settings));
 			this.mqttClient.subscribe(settings.requireTopic(), settings.getQos());
 			this.topic = settings.requireTopic();
 		} catch (MqttException e) {
 			throw new ClientException(e);
 		}
+	}
+
+	/**
+	 * Diese Methode erzeugt die Verbindungsoptionen.
+	 *
+	 * @param settings die zu verwendenden Einstellungen
+	 * @return die erzeugten Optionen
+	 */
+	@Nonnull
+	private MqttConnectionOptions createConnectOptions(@Nonnull final Settings settings) {
+		return this.createConnectOptions(settings.getUsername(), settings.getPassword());
+	}
+
+	/**
+	 * Diese Methode erzeugt die Verbindungsoptionen.
+	 *
+	 * @param username der zu verwendende Benutzername
+	 * @param passwort das zu verwendende Passwort
+	 * @return die erzeugten Optionen
+	 */
+	@Nonnull
+	private MqttConnectionOptions createConnectOptions(
+			@CheckForNull final String username,
+			@CheckForNull final String passwort) {
+
+		MqttConnectionOptions options = new MqttConnectionOptions();
+
+		if (isNotEmpty(username) && isNotEmpty(passwort)) {
+			options.setUserName(username);
+			options.setPassword(passwort.getBytes());
+		}
+
+		return options;
 	}
 
 	/**

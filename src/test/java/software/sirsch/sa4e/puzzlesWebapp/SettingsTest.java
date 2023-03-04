@@ -100,6 +100,50 @@ public class SettingsTest {
 	}
 
 	/**
+	 * Diese Methode prüft {@link Settings#getUsername()}.
+	 */
+	@Test
+	public void testGetUsername() {
+		String result;
+
+		result = this.objectUnderTest.getUsername();
+
+		assertNull(result);
+	}
+
+	/**
+	 * Diese Methode prüft {@link Settings#setUsername(String)}.
+	 */
+	@Test
+	public void testSetUsername() {
+		this.objectUnderTest.setUsername("testUsername");
+
+		assertEquals("testUsername", this.objectUnderTest.getUsername());
+	}
+
+	/**
+	 * Diese Methode prüft {@link Settings#getPassword()}.
+	 */
+	@Test
+	public void testGetPassword() {
+		String result;
+
+		result = this.objectUnderTest.getPassword();
+
+		assertNull(result);
+	}
+
+	/**
+	 * Diese Methode prüft {@link Settings#setPassword(String)}.
+	 */
+	@Test
+	public void testSetPassword() {
+		this.objectUnderTest.setPassword("testPassword");
+
+		assertEquals("testPassword", this.objectUnderTest.getPassword());
+	}
+
+	/**
 	 * Diese Methode prüft {@link Settings#getTopic()}.
 	 */
 	@Test

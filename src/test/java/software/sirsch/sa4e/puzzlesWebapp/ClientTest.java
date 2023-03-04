@@ -1,6 +1,11 @@
 package software.sirsch.sa4e.puzzlesWebapp;
 
+import java.util.Arrays;
+
+import javax.annotation.CheckForNull;
+
 import org.eclipse.paho.mqttv5.client.MqttClient;
+import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.client.persist.MemoryPersistence;
 import org.eclipse.paho.mqttv5.common.MqttException;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,10 +15,13 @@ import org.mockito.InOrder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -95,7 +103,57 @@ public class ClientTest {
 				this.clientCallbackAdapterFactory);
 
 		orderVerifier.verify(this.mqttClient).setCallback(this.clientCallbackAdapter);
-		orderVerifier.verify(this.mqttClient).connect();
+		orderVerifier.verify(this.mqttClient).connect(argThat(this::isOptionsWithoutCredentials));
+		orderVerifier.verify(this.mqttClient).subscribe("testTopic", 2);
+	}
+
+	/**
+	 * Diese Methode prüft {@link Client#Client(Settings, ClientListener, MqttClientFactory,
+	 * ClientCallbackAdapterFactory)} mit Benutzername, aber ohne Passwort.
+	 *
+	 * @throws MqttException wird in diesem Testfall nicht erwartet
+	 */
+	@Test
+	public void testConstructWithoutPassword() throws MqttException {
+		InOrder orderVerifier = inOrder(this.mqttClient);
+
+		reset(this.mqttClient);
+		when(this.settings.getUsername()).thenReturn("testUsername");
+		when(this.settings.getPassword()).thenReturn("");
+
+		this.objectUnderTest = new Client(
+				this.settings,
+				this.clientListener,
+				this.mqttClientFactory,
+				this.clientCallbackAdapterFactory);
+
+		orderVerifier.verify(this.mqttClient).setCallback(this.clientCallbackAdapter);
+		orderVerifier.verify(this.mqttClient).connect(argThat(this::isOptionsWithoutCredentials));
+		orderVerifier.verify(this.mqttClient).subscribe("testTopic", 2);
+	}
+
+	/**
+	 * Diese Methode prüft {@link Client#Client(Settings, ClientListener, MqttClientFactory,
+	 * ClientCallbackAdapterFactory)} mit Zugangsdaten.
+	 *
+	 * @throws MqttException wird in diesem Testfall nicht erwartet
+	 */
+	@Test
+	public void testConstructWithCredentials() throws MqttException {
+		InOrder orderVerifier = inOrder(this.mqttClient);
+
+		reset(this.mqttClient);
+		when(this.settings.getUsername()).thenReturn("testUsername");
+		when(this.settings.getPassword()).thenReturn("testPassword");
+
+		this.objectUnderTest = new Client(
+				this.settings,
+				this.clientListener,
+				this.mqttClientFactory,
+				this.clientCallbackAdapterFactory);
+
+		orderVerifier.verify(this.mqttClient).setCallback(this.clientCallbackAdapter);
+		orderVerifier.verify(this.mqttClient).connect(argThat(this::isOptionsWithCredentials));
 		orderVerifier.verify(this.mqttClient).subscribe("testTopic", 2);
 	}
 
@@ -111,7 +169,7 @@ public class ClientTest {
 		MqttException mqttException = new MqttException(new RuntimeException("testException"));
 		ClientException caughtException;
 
-		doThrow(mqttException).when(this.mqttClient).connect();
+		doThrow(mqttException).when(this.mqttClient).connect(notNull());
 
 		caughtException = assertThrows(
 				ClientException.class,
@@ -154,5 +212,33 @@ public class ClientTest {
 				() -> this.objectUnderTest.disconnect());
 
 		assertEquals(mqttException, caughtException.getCause());
+	}
+
+	/**
+	 * Diese Methode prüft, ob es sich um die {@link MqttConnectionOptions} ohne Zugangsdaten
+	 * handelt.
+	 *
+	 * @param options die zu prüfenden Optionen
+	 * @return {@code true}, falls es sich um die erwarteten Optionen handelt, sonst {@code false}
+	 */
+	private boolean isOptionsWithoutCredentials(
+			@CheckForNull final MqttConnectionOptions options) {
+
+		return options != null && options.getUserName() == null && options.getPassword() == null;
+	}
+
+	/**
+	 * Diese Methode prüft, ob es sich um die {@link MqttConnectionOptions} mit Zugangsdaten
+	 * handelt.
+	 *
+	 * @param options die zu prüfenden Optionen
+	 * @return {@code true}, falls es sich um die erwarteten Optionen handelt, sonst {@code false}
+	 */
+	private boolean isOptionsWithCredentials(
+			@CheckForNull final MqttConnectionOptions options) {
+
+		return options != null
+				&& "testUsername".equals(options.getUserName())
+				&& Arrays.equals("testPassword".getBytes(), options.getPassword());
 	}
 }
