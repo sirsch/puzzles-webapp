@@ -1,5 +1,7 @@
 package software.sirsch.sa4e.puzzlesWebapp;
 
+import java.util.Optional;
+
 import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 
@@ -9,13 +11,18 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.Command;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -32,7 +39,7 @@ public class PuzzlesView extends VerticalLayout {
 	 * Dieses Feld muss das {@link TextField} für die Broker-URL enthalten.
 	 */
 	@Nonnull
-	private final TextField brokerUrlField = new TextField("MQTT Server URL");
+	private final TextField brokerUrlField = new TextField("MQTT Server URI");
 
 	/**
 	 * Dieses Feld muss das {@link TextField} für die Client-ID enthalten.
@@ -71,6 +78,12 @@ public class PuzzlesView extends VerticalLayout {
 	private final Button connectButton = new Button("verbinden");
 
 	/**
+	 * Dieses Feld muss den {@link Button} zum Trennen enthalten.
+	 */
+	@Nonnull
+	private final Button disconnectButton = new Button("trennen");
+
+	/**
 	 * Dieses Feld muss den {@link Binder} für die Formularfelder enthalten.
 	 */
 	@Nonnull
@@ -99,13 +112,18 @@ public class PuzzlesView extends VerticalLayout {
 	 */
 	private void initializeBinder() {
 		this.settingsBinder.forField(this.brokerUrlField)
+				.asRequired("Die Broker URI muss angegeben werden!")
 				.bind(Settings::getBrokerUrl, Settings::setBrokerUrl);
 		this.settingsBinder.forField(this.clientIdTextField)
+				.asRequired("Die Client ID muss angegeben werden!")
 				.bind(Settings::getClientId, Settings::setClientId);
 		this.settingsBinder.forField(this.usernameTextField)
 				.bind(Settings::getUsername, Settings::setUsername);
 		this.settingsBinder.forField(this.passwordField)
 				.bind(Settings::getPassword, Settings::setPassword);
+		this.settingsBinder.forField(this.topicsTextField)
+				.withConverter(new StringToListConverter())
+				.bind(Settings::getTopics, Settings::setTopics);
 		this.settingsBinder.forField(this.qosTextField)
 				.withConverter(new StringToIntegerConverter(
 						"Hier muss eine Zahl eingegeben werden!"))
@@ -119,6 +137,7 @@ public class PuzzlesView extends VerticalLayout {
 		this.add(this.createSettingsHeading());
 		this.add(this.createSettingsForm());
 		this.add(this.createSettingsButtons());
+		this.add(new Hr());
 	}
 
 	/**
@@ -163,8 +182,11 @@ public class PuzzlesView extends VerticalLayout {
 	private Component createSettingsButtons() {
 		HorizontalLayout buttonLayout = new HorizontalLayout();
 
+		this.connectButton.addClickListener(event -> this.presenter.onConnect());
 		this.connectButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		buttonLayout.add(this.connectButton);
+		this.disconnectButton.addClickListener(event -> this.presenter.onDisconnect());
+		buttonLayout.add(this.disconnectButton);
 		return buttonLayout;
 	}
 
@@ -183,5 +205,40 @@ public class PuzzlesView extends VerticalLayout {
 	 */
 	public void readSettings(@Nonnull final Settings settings) {
 		this.settingsBinder.readBean(settings);
+	}
+
+	/**
+	 * Diese Methode liest die Einstellungen aus.
+	 *
+	 * @param settings die zu befüllende Instanz
+	 * @return die befüllte Instanz oder {@code null}, falls das Auslesen nicht möglich war
+	 */
+	@Nonnull
+	public Optional<Settings> writeSettings(@Nonnull final Settings settings) {
+		try {
+			this.settingsBinder.writeBean(settings);
+			return Optional.of(settings);
+		} catch (ValidationException e) {
+			Notification.show("Die Validierung mancher Felder ist fehlgeschlagen!");
+			return Optional.empty();
+		}
+	}
+
+	/**
+	 * Diese Methode fügt eine neue Benachrichtigung hinzu.
+	 *
+	 * @param notification die hinzuzufügende Benachrichtigung
+	 */
+	public void addNotification(@Nonnull final String notification) {
+		this.runWithUIAccess(() -> this.add(new Paragraph(notification)));
+	}
+
+	/**
+	 * Diese Methode führt ein Kommando synchronisiert mit der UI aus.
+	 *
+	 * @param command das auszuführende Kommando
+	 */
+	private void runWithUIAccess(@Nonnull final Command command) {
+		this.getUI().ifPresent(ui -> ui.access(command));
 	}
 }

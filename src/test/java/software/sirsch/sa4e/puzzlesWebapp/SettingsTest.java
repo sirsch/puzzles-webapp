@@ -43,7 +43,7 @@ public class SettingsTest {
 
 		result = this.objectUnderTest.getBrokerUrl();
 
-		assertNull(result);
+		assertEquals("tcp://localhost:1883", result);
 	}
 
 	/**
@@ -75,6 +75,8 @@ public class SettingsTest {
 	 */
 	@Test
 	public void testRequireBrokerUrlNull() {
+		this.objectUnderTest.setBrokerUrl(null);
+
 		assertThrows(IllegalStateException.class, () -> this.objectUnderTest.requireBrokerUrl());
 	}
 
@@ -155,7 +157,7 @@ public class SettingsTest {
 
 		result = this.objectUnderTest.getTopics();
 
-		assertEquals(emptyList(), result);
+		assertEquals(List.of("Zahlenraetsel", "Loesung"), result);
 	}
 
 	/**

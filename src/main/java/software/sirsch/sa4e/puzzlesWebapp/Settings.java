@@ -74,8 +74,11 @@ public class Settings {
 	public Settings() {
 		final int randomStringLength = 8;
 
+		this.brokerUrl = "tcp://localhost:1883";
 		this.defaultClientId = "puzzles-webapp_"
 				+ randomAlphanumeric(randomStringLength).toLowerCase(Locale.US);
+		this.topics.add("Zahlenraetsel");
+		this.topics.add("Loesung");
 	}
 
 	/**

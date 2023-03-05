@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @UIScope
-public class PuzzlesPresenter {
+public class PuzzlesPresenter implements ClientListener {
 
 	/**
 	 * Dieses Feld muss die zu verwendenden Einstellungen enthalten.
@@ -32,6 +32,12 @@ public class PuzzlesPresenter {
 	private PuzzlesView view;
 
 	/**
+	 * Dieses Feld enthält den {@link Client}, solange eine Verbindung besteht.
+	 */
+	@CheckForNull
+	private Client client;
+
+	/**
 	 * Diese Methode initialisiert diese Instanz mit der zu verwaltenden View.
 	 *
 	 * @param puzzlesView die zu setzende View
@@ -39,6 +45,42 @@ public class PuzzlesPresenter {
 	public void init(@Nonnull final PuzzlesView puzzlesView) {
 		this.view = puzzlesView;
 		this.view.readSettings(this.settings);
+	}
+
+	/**
+	 * Diese Methode behandelt den Click auf den Verbinden-Button.
+	 */
+	public void onConnect() {
+		this.onDisconnect();
+		this.connect();
+	}
+
+	/**
+	 * Diese Methode stellt die Verbindung mittels des {@link Client} her, sofern die Einstellungen
+	 * aus der {@link #view} ausgelesen werden können.
+	 */
+	private void connect() {
+		this.requireView().writeSettings(this.settings)
+				.ifPresent(this::connect);
+	}
+
+	/**
+	 * Diese Methode stellt die Verbindung mittels des {@link Client} her.
+	 *
+	 * @param settingsToUse die zu verwendenden Einstellungen
+	 */
+	private void connect(@Nonnull final Settings settingsToUse) {
+		this.client = new Client(settingsToUse, this);
+	}
+
+	/**
+	 * Diese Methode behandelt den Click auf den Trennen-Button.
+	 */
+	public void onDisconnect() {
+		if (this.client != null) {
+			this.client.disconnect();
+			this.client = null;
+		}
 	}
 
 	/**
@@ -51,5 +93,13 @@ public class PuzzlesPresenter {
 	private PuzzlesView requireView() {
 		return Optional.ofNullable(this.view)
 				.orElseThrow(IllegalStateException::new);
+	}
+
+	@Override
+	public void onMessage(@Nonnull final String message) {
+	}
+
+	@Override
+	public void onNotification(@Nonnull final String notification) {
 	}
 }
