@@ -1,5 +1,6 @@
 package software.sirsch.sa4e.puzzlesWebapp;
 
+import java.util.Locale;
 import java.util.Optional;
 
 import javax.annotation.CheckForNull;
@@ -71,7 +72,8 @@ public class Settings {
 	public Settings() {
 		final int randomStringLength = 8;
 
-		this.defaultClientId = "puzzles-webapp_" + randomAlphanumeric(randomStringLength);
+		this.defaultClientId = "puzzles-webapp_"
+				+ randomAlphanumeric(randomStringLength).toLowerCase(Locale.US);
 	}
 
 	/**

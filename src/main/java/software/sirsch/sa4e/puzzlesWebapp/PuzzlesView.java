@@ -1,6 +1,7 @@
 package software.sirsch.sa4e.puzzlesWebapp;
 
 import javax.annotation.Nonnull;
+import javax.annotation.PostConstruct;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -12,7 +13,11 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.router.Route;
+
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Diese Klasse stellt die Benutzeroberfläche für die puzzles-webapp bereit.
@@ -27,49 +32,84 @@ public class PuzzlesView extends VerticalLayout {
 	 * Dieses Feld muss das {@link TextField} für die Broker-URL enthalten.
 	 */
 	@Nonnull
-	private TextField brokerUrlField = new TextField("MQTT Server URL");
+	private final TextField brokerUrlField = new TextField("MQTT Server URL");
 
 	/**
 	 * Dieses Feld muss das {@link TextField} für die Client-ID enthalten.
 	 */
 	@Nonnull
-	private TextField clientIdTextField = new TextField("Client ID");
+	private final TextField clientIdTextField = new TextField("Client ID");
 
 	/**
 	 * Dieses Feld muss das {@link TextField} für den Benutzernamen enthalten.
 	 */
 	@Nonnull
-	private TextField usernameTextField = new TextField("Benutzername");
+	private final TextField usernameTextField = new TextField("Benutzername");
 
 	/**
 	 * Dieses Feld muss das {@link PasswordField} enthalten.
 	 */
 	@Nonnull
-	private PasswordField passwordField = new PasswordField("Passwort");
+	private final PasswordField passwordField = new PasswordField("Passwort");
 
 	/**
 	 * Dieses Feld muss das {@link TextField} für die Topics enthalten.
 	 */
 	@Nonnull
-	private TextField topicsTextField = new TextField("Topics");
+	private final TextField topicsTextField = new TextField("Topics");
 
 	/**
 	 * Dieses Feld muss das {@link TextField} für QOS enthalten.
 	 */
 	@Nonnull
-	private TextField qosTextField = new TextField("QOS");
+	private final TextField qosTextField = new TextField("QOS");
 
 	/**
 	 * Dieses Feld muss den {@link Button} zum Verbinden enthalten.
 	 */
 	@Nonnull
-	private Button connectButton = new Button("verbinden");
+	private final Button connectButton = new Button("verbinden");
+
+	/**
+	 * Dieses Feld muss den {@link Binder} für die Formularfelder enthalten.
+	 */
+	@Nonnull
+	private final Binder<Settings> settingsBinder = new Binder<>(Settings.class);
+
+	/**
+	 * Dieses Feld muss den {@link PuzzlesPresenter} enthalten.
+	 */
+	@Nonnull
+	private final PuzzlesPresenter presenter;
 
 	/**
 	 * Dieser Konstruktor nimmt die interne Initialisierung vor.
+	 *
+	 * @param presenter der zu setzende Presenter
 	 */
-	public PuzzlesView() {
+	@Autowired
+	public PuzzlesView(@Nonnull final PuzzlesPresenter presenter) {
+		this.presenter = presenter;
+		this.initializeBinder();
 		this.createLayout();
+	}
+
+	/**
+	 * Diese Methode initialisiert den {@link #settingsBinder}.
+	 */
+	private void initializeBinder() {
+		this.settingsBinder.forField(this.brokerUrlField)
+				.bind(Settings::getBrokerUrl, Settings::setBrokerUrl);
+		this.settingsBinder.forField(this.clientIdTextField)
+				.bind(Settings::getClientId, Settings::setClientId);
+		this.settingsBinder.forField(this.usernameTextField)
+				.bind(Settings::getUsername, Settings::setUsername);
+		this.settingsBinder.forField(this.passwordField)
+				.bind(Settings::getPassword, Settings::setPassword);
+		this.settingsBinder.forField(this.qosTextField)
+				.withConverter(new StringToIntegerConverter(
+						"Hier muss eine Zahl eingegeben werden!"))
+				.bind(Settings::getQos, Settings::setQos);
 	}
 
 	/**
@@ -126,5 +166,22 @@ public class PuzzlesView extends VerticalLayout {
 		this.connectButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		buttonLayout.add(this.connectButton);
 		return buttonLayout;
+	}
+
+	/**
+	 * Diese Methode führt die Initialisierung durch.
+	 */
+	@PostConstruct
+	public void init() {
+		this.presenter.init(this);
+	}
+
+	/**
+	 * Diese Methode setzt die Einstellungen.
+	 *
+	 * @param settings die zu setzende Einstellungen
+	 */
+	public void readSettings(@Nonnull final Settings settings) {
+		this.settingsBinder.readBean(settings);
 	}
 }
