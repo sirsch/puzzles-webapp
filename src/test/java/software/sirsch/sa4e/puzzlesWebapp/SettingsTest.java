@@ -1,8 +1,11 @@
 package software.sirsch.sa4e.puzzlesWebapp;
 
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static java.util.Collections.emptyList;
 import static org.apache.commons.lang3.StringUtils.startsWith;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -144,47 +147,25 @@ public class SettingsTest {
 	}
 
 	/**
-	 * Diese Methode prüft {@link Settings#getTopic()}.
+	 * Diese Methode prüft {@link Settings#getTopics()}.
 	 */
 	@Test
 	public void testGetTopic() {
-		String result;
+		List<String> result;
 
-		result = this.objectUnderTest.getTopic();
+		result = this.objectUnderTest.getTopics();
 
-		assertNull(result);
+		assertEquals(emptyList(), result);
 	}
 
 	/**
-	 * Diese Methode prüft {@link Settings#setTopic(String)}.
+	 * Diese Methode prüft {@link Settings#setTopics(List)}.
 	 */
 	@Test
 	public void testSetTopic() {
-		this.objectUnderTest.setTopic("testTopic");
+		this.objectUnderTest.setTopics(List.of("testTopic0", "testTopic1"));
 
-		assertEquals("testTopic", this.objectUnderTest.getTopic());
-	}
-
-	/**
-	 * Diese Methode prüft {@link Settings#requireTopic()}.
-	 */
-	@Test
-	public void testRequireTopic() {
-		String result;
-
-		this.objectUnderTest.setTopic("testTopic");
-
-		result = this.objectUnderTest.requireTopic();
-
-		assertEquals("testTopic", result);
-	}
-
-	/**
-	 * Diese Methode prüft {@link Settings#requireTopic()}, wenn der Wert nicht gesetzt ist.
-	 */
-	@Test
-	public void testRequireTopicNull() {
-		assertThrows(IllegalStateException.class, () -> this.objectUnderTest.requireTopic());
+		assertEquals(List.of("testTopic0", "testTopic1"), this.objectUnderTest.getTopics());
 	}
 
 	/**

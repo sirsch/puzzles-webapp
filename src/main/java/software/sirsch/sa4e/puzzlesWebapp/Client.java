@@ -1,5 +1,7 @@
 package software.sirsch.sa4e.puzzlesWebapp;
 
+import java.util.List;
+
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
@@ -32,7 +34,7 @@ public class Client {
 	 * Dieses Feld muss das Topic enthalten.
 	 */
 	@Nonnull
-	private final String topic;
+	private final List<String> topics;
 
 	/**
 	 * Dieser Konstruktor verbindet den Client.
@@ -59,14 +61,17 @@ public class Client {
 			@Nonnull final ClientCallbackAdapterFactory clientCallbackAdapterFactory) {
 
 		try {
+			this.topics = settings.getTopics();
 			this.mqttClient = mqttClientFactory.create(
 					settings.requireBrokerUrl(),
 					settings.getClientId(),
 					new MemoryPersistence());
 			this.mqttClient.setCallback(clientCallbackAdapterFactory.create(clientListener));
 			this.mqttClient.connect(this.createConnectOptions(settings));
-			this.mqttClient.subscribe(settings.requireTopic(), settings.getQos());
-			this.topic = settings.requireTopic();
+
+			for (String topic : settings.getTopics()) {
+				this.mqttClient.subscribe(topic, settings.getQos());
+			}
 		} catch (MqttException e) {
 			throw new ClientException(e);
 		}
@@ -110,7 +115,10 @@ public class Client {
 	 */
 	public void disconnect() {
 		try {
-			this.mqttClient.unsubscribe(this.topic);
+			for (String topic : this.topics) {
+				this.mqttClient.unsubscribe(topic);
+			}
+
 			this.mqttClient.disconnect();
 		} catch (MqttException e) {
 			throw new ClientException(e);

@@ -1,6 +1,7 @@
 package software.sirsch.sa4e.puzzlesWebapp;
 
 import java.util.Arrays;
+import java.util.List;
 
 import javax.annotation.CheckForNull;
 
@@ -87,7 +88,7 @@ public class ClientTest {
 
 		when(this.settings.requireBrokerUrl()).thenReturn("test://broker/url");
 		when(this.settings.getClientId()).thenReturn("testClientId");
-		when(this.settings.requireTopic()).thenReturn("testTopic");
+		when(this.settings.getTopics()).thenReturn(List.of("testTopic0", "testTopic1"));
 		when(this.settings.getQos()).thenReturn(2);
 		when(this.mqttClientFactory.create(
 				eq("test://broker/url"),
@@ -104,7 +105,8 @@ public class ClientTest {
 
 		orderVerifier.verify(this.mqttClient).setCallback(this.clientCallbackAdapter);
 		orderVerifier.verify(this.mqttClient).connect(argThat(this::isOptionsWithoutCredentials));
-		orderVerifier.verify(this.mqttClient).subscribe("testTopic", 2);
+		orderVerifier.verify(this.mqttClient).subscribe("testTopic0", 2);
+		orderVerifier.verify(this.mqttClient).subscribe("testTopic1", 2);
 	}
 
 	/**
@@ -129,7 +131,8 @@ public class ClientTest {
 
 		orderVerifier.verify(this.mqttClient).setCallback(this.clientCallbackAdapter);
 		orderVerifier.verify(this.mqttClient).connect(argThat(this::isOptionsWithoutCredentials));
-		orderVerifier.verify(this.mqttClient).subscribe("testTopic", 2);
+		orderVerifier.verify(this.mqttClient).subscribe("testTopic0", 2);
+		orderVerifier.verify(this.mqttClient).subscribe("testTopic1", 2);
 	}
 
 	/**
@@ -154,7 +157,8 @@ public class ClientTest {
 
 		orderVerifier.verify(this.mqttClient).setCallback(this.clientCallbackAdapter);
 		orderVerifier.verify(this.mqttClient).connect(argThat(this::isOptionsWithCredentials));
-		orderVerifier.verify(this.mqttClient).subscribe("testTopic", 2);
+		orderVerifier.verify(this.mqttClient).subscribe("testTopic0", 2);
+		orderVerifier.verify(this.mqttClient).subscribe("testTopic1", 2);
 	}
 
 	/**
@@ -189,10 +193,13 @@ public class ClientTest {
 	 */
 	@Test
 	public void testDisconnect() throws MqttException {
+		InOrder orderVerifier = inOrder(this.mqttClient);
+
 		this.objectUnderTest.disconnect();
 
-		verify(this.mqttClient).unsubscribe("testTopic");
-		verify(this.mqttClient).disconnect();
+		orderVerifier.verify(this.mqttClient).unsubscribe("testTopic0");
+		orderVerifier.verify(this.mqttClient).unsubscribe("testTopic1");
+		orderVerifier.verify(this.mqttClient).disconnect();
 	}
 
 	/**

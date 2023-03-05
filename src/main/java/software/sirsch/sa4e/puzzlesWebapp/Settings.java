@@ -1,5 +1,7 @@
 package software.sirsch.sa4e.puzzlesWebapp;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -55,10 +57,10 @@ public class Settings {
 	private String password;
 
 	/**
-	 * Dieses Feld kann das Topic enthalten.
+	 * Dieses Feld enthält die Liste der Topics.
 	 */
-	@CheckForNull
-	private String topic;
+	@Nonnull
+	private List<String> topics = new ArrayList<>();
 
 	/**
 	 * Dieses Feld kann das QOS enthalten.
@@ -175,43 +177,23 @@ public class Settings {
 	}
 
 	/**
-	 * Diese Methode gibt das Topic zurück.
+	 * Diese Methode gibt die Liste der Topics zurück.
 	 *
-	 * @return das Topic, falls vorhanden
-	 */
-	@CheckForNull
-	public String getTopic() {
-		return this.topic;
-	}
-
-	/**
-	 * Diese Methode legt das Topic fest.
-	 *
-	 * @param topic das zu setzende Topic
-	 */
-	public void setTopic(@CheckForNull final String topic) {
-		this.topic = topic;
-	}
-
-	/**
-	 * Diese Methode gibt das Topic zurück und zeigt ein Fehlen per Ausnahme an.
-	 *
-	 * @return das Topic, nicht {@code null}
+	 * @return die Liste der Topics
 	 */
 	@Nonnull
-	public String requireTopic() {
-		return Optional.ofNullable(this.topic)
-				.orElseThrow(this::createMissingTopicException);
+	public List<String> getTopics() {
+		return List.copyOf(this.topics);
 	}
 
 	/**
-	 * Diese Methode erzeugt die Ausnahme, die anzeigt, dass das Topic nicht vorhanden ist.
+	 * Diese Methode legt die Liste der Topics fest.
 	 *
-	 * @return die erzeugte Ausnahme
+	 * @param topics die zu setzende Liste
 	 */
-	@Nonnull
-	private IllegalStateException createMissingTopicException() {
-		return new IllegalStateException("Missing Topic!");
+	public void setTopics(@Nonnull final List<String> topics) {
+		this.topics.clear();
+		this.topics.addAll(topics);
 	}
 
 	/**
