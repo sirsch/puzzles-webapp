@@ -90,6 +90,12 @@ public class PuzzlesView extends VerticalLayout {
 	private final Binder<Settings> settingsBinder = new Binder<>(Settings.class);
 
 	/**
+	 * Dieses Feld muss das Layout für die Ausgabe enthalten.
+	 */
+	@Nonnull
+	private final VerticalLayout outputLayout = new VerticalLayout();
+
+	/**
 	 * Dieses Feld muss den {@link PuzzlesPresenter} enthalten.
 	 */
 	@Nonnull
@@ -138,6 +144,7 @@ public class PuzzlesView extends VerticalLayout {
 		this.add(this.createSettingsForm());
 		this.add(this.createSettingsButtons());
 		this.add(new Hr());
+		this.add(this.outputLayout);
 	}
 
 	/**
@@ -230,7 +237,8 @@ public class PuzzlesView extends VerticalLayout {
 	 * @param notification die hinzuzufügende Benachrichtigung
 	 */
 	public void addNotification(@Nonnull final String notification) {
-		this.runWithUIAccess(() -> this.add(new Paragraph(notification)));
+		this.runWithUIAccess(
+				() -> this.outputLayout.addComponentAsFirst(new Paragraph(notification)));
 	}
 
 	/**

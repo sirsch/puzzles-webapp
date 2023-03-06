@@ -23,7 +23,13 @@ public class PuzzlesPresenter implements ClientListener {
 	 * Dieses Feld muss die zu verwendenden Einstellungen enthalten.
 	 */
 	@Nonnull
-	private Settings settings = new Settings();
+	private final Settings settings;
+
+	/**
+	 * Dieses Feld muss die {@link ClientFactory} enthalten.
+	 */
+	@Nonnull
+	private final ClientFactory clientFactory;
 
 	/**
 	 * Dieses Feld soll die {@link PuzzlesView} enthalten, für die dieser Presenter zuständig ist.
@@ -36,6 +42,27 @@ public class PuzzlesPresenter implements ClientListener {
 	 */
 	@CheckForNull
 	private Client client;
+
+	/**
+	 * Dieser Konstruktor nimmt die interne Initialisierung vor.
+	 */
+	public PuzzlesPresenter() {
+		this(new Settings(), Client::new);
+	}
+
+	/**
+	 * Dieser Konstruktor erlaubt das Einschleusen von Objekten zum Testen.
+	 *
+	 * @param settings die zu setzenden Einstellungen
+	 * @param clientFactory die zu setzende Fabrik für Clients
+	 */
+	protected PuzzlesPresenter(
+			@Nonnull final Settings settings,
+			@Nonnull final ClientFactory clientFactory) {
+
+		this.settings = settings;
+		this.clientFactory = clientFactory;
+	}
 
 	/**
 	 * Diese Methode initialisiert diese Instanz mit der zu verwaltenden View.
@@ -70,7 +97,8 @@ public class PuzzlesPresenter implements ClientListener {
 	 * @param settingsToUse die zu verwendenden Einstellungen
 	 */
 	private void connect(@Nonnull final Settings settingsToUse) {
-		this.client = new Client(settingsToUse, this);
+		this.runWithErrorHandler(
+				() -> this.client = this.clientFactory.create(settingsToUse, this));
 	}
 
 	/**
@@ -78,9 +106,32 @@ public class PuzzlesPresenter implements ClientListener {
 	 */
 	public void onDisconnect() {
 		if (this.client != null) {
-			this.client.disconnect();
+			this.runWithErrorHandler(this.client::disconnect);
 			this.client = null;
 		}
+	}
+
+	/**
+	 * Diese Methode führt ein Kommando aus und meldet eventuelle Fehler an
+	 * {@link #onNotification(String)}.
+	 *
+	 * @param command das auszuführende Kommando
+	 */
+	private void runWithErrorHandler(@Nonnull final Runnable command) {
+		try {
+			command.run();
+		} catch (ClientException e) {
+			this.onNotification(e.getMessage());
+		}
+	}
+
+	@Override
+	public void onMessage(@Nonnull final String message) {
+	}
+
+	@Override
+	public void onNotification(@Nonnull final String notification) {
+		this.requireView().addNotification(notification);
 	}
 
 	/**
@@ -93,13 +144,5 @@ public class PuzzlesPresenter implements ClientListener {
 	private PuzzlesView requireView() {
 		return Optional.ofNullable(this.view)
 				.orElseThrow(IllegalStateException::new);
-	}
-
-	@Override
-	public void onMessage(@Nonnull final String message) {
-	}
-
-	@Override
-	public void onNotification(@Nonnull final String notification) {
 	}
 }
