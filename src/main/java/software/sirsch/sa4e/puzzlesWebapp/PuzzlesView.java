@@ -1,11 +1,14 @@
 package software.sirsch.sa4e.puzzlesWebapp;
 
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -102,13 +105,44 @@ public class PuzzlesView extends VerticalLayout {
 	private final PuzzlesPresenter presenter;
 
 	/**
+	 * Dieses Feld muss den {@link Consumer} enthalten, der Meldungen auf der UI einblendet.
+	 */
+	@Nonnull
+	private final Consumer<String> notificator;
+
+	/**
+	 * Dieses Feld muss den Provider enthalten, der die aktuelle UI einer {@link Component}
+	 * ermitteln kann.
+	 */
+	@Nonnull
+	private final Function<Component, Optional<UI>> uiProvider;
+
+	/**
 	 * Dieser Konstruktor nimmt die interne Initialisierung vor.
 	 *
 	 * @param presenter der zu setzende Presenter
 	 */
 	@Autowired
 	public PuzzlesView(@Nonnull final PuzzlesPresenter presenter) {
+		this(presenter, Notification::show, Component::getUI);
+	}
+
+	/**
+	 * Dieser Konstruktor nimmt die interne Initialisierung vor.
+	 *
+	 * @param presenter der zu setzende Presenter
+	 * @param notificator der zu setzende Notificator
+	 * @param uiProvider der zu setzende UI-Provider
+	 */
+	protected PuzzlesView(
+			@Nonnull final PuzzlesPresenter presenter,
+			@Nonnull final Consumer<String> notificator,
+			@Nonnull final Function<Component, Optional<UI>> uiProvider) {
+
 		this.presenter = presenter;
+		this.notificator = notificator;
+		this.uiProvider = uiProvider;
+
 		this.initializeBinder();
 		this.createLayout();
 	}
@@ -226,7 +260,7 @@ public class PuzzlesView extends VerticalLayout {
 			this.settingsBinder.writeBean(settings);
 			return Optional.of(settings);
 		} catch (ValidationException e) {
-			Notification.show("Die Validierung mancher Felder ist fehlgeschlagen!");
+			this.notificator.accept("Die Validierung mancher Felder ist fehlgeschlagen!");
 			return Optional.empty();
 		}
 	}
@@ -247,6 +281,86 @@ public class PuzzlesView extends VerticalLayout {
 	 * @param command das auszuführende Kommando
 	 */
 	private void runWithUIAccess(@Nonnull final Command command) {
-		this.getUI().ifPresent(ui -> ui.access(command));
+		this.uiProvider.apply(this).ifPresent(ui -> ui.access(command));
+	}
+
+	/**
+	 * Diese Methode gibt das {@link #brokerUrlField} zum Testen zurück.
+	 *
+	 * @return das Feld
+	 */
+	@Nonnull
+	protected TextField getBrokerUrlField() {
+		return this.brokerUrlField;
+	}
+
+	/**
+	 * Diese Methode gibt das {@link #clientIdTextField} zum Testen zurück.
+	 *
+	 * @return das Feld
+	 */
+	@Nonnull
+	public TextField getClientIdTextField() {
+		return this.clientIdTextField;
+	}
+
+	/**
+	 * Diese Methode gibt das {@link #usernameTextField} zum Testen zurück.
+	 *
+	 * @return das Feld
+	 */
+	@Nonnull
+	public TextField getUsernameTextField() {
+		return this.usernameTextField;
+	}
+
+	/**
+	 * Diese Methode gibt das {@link #passwordField} zum Testen zurück.
+	 *
+	 * @return das Feld
+	 */
+	@Nonnull
+	public PasswordField getPasswordField() {
+		return this.passwordField;
+	}
+
+	/**
+	 * Diese Methode gibt das {@link #topicsTextField} zum Testen zurück.
+	 *
+	 * @return das Feld
+	 */
+	@Nonnull
+	public TextField getTopicsTextField() {
+		return this.topicsTextField;
+	}
+
+	/**
+	 * Diese Methode gibt das {@link #qosTextField} zum Testen zurück.
+	 *
+	 * @return das Feld
+	 */
+	@Nonnull
+	public TextField getQosTextField() {
+		return this.qosTextField;
+	}
+
+	/**
+	 * Diese Methode gibt den {@link #connectButton} zum Testen zurück.
+	 *
+	 * @return der Button
+	 */
+	@Nonnull
+	public Button getConnectButton() {
+		return this.connectButton;
+	}
+
+	/**
+	 * Diese Methode gibt den {@link #disconnectButton} zum Testen zurück.
+	 *
+	 * @return der Button
+	 */
+	@Nonnull
+	public Button getDisconnectButton() {
+		return this.disconnectButton;
 	}
 }
