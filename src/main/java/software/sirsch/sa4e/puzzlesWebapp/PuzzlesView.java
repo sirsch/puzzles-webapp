@@ -363,4 +363,14 @@ public class PuzzlesView extends VerticalLayout {
 	public Button getDisconnectButton() {
 		return this.disconnectButton;
 	}
+
+	/**
+	 * Diese Methode gibt das {@link #outputLayout} zum Testen zurück.
+	 *
+	 * @return der Button
+	 */
+	@Nonnull
+	public VerticalLayout getOutputLayout() {
+		return this.outputLayout;
+	}
 }

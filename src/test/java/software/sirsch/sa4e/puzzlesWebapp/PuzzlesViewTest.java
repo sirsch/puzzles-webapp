@@ -4,14 +4,21 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nonnull;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.server.Command;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.notNull;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -50,11 +57,19 @@ public class PuzzlesViewTest {
 	 */
 	@BeforeEach
 	public void setUp() {
+		UI ui = mock(UI.class);
+
 		this.presenter = mock(PuzzlesPresenter.class);
 		this.notificator = mock(Consumer.class);
 		this.uiProvider = mock(Function.class);
+		doAnswer(invocation -> {
+			invocation.<Command>getArgument(0).execute();
+			return null;
+		}).when(ui).access(notNull());
 
 		this.objectUnderTest = new PuzzlesView(this.presenter, this.notificator, this.uiProvider);
+
+		when(this.uiProvider.apply(this.objectUnderTest)).thenReturn(Optional.of(ui));
 	}
 
 	/**
@@ -151,9 +166,49 @@ public class PuzzlesViewTest {
 	}
 
 	/**
+	 * Diese Methode prüft den Click auf den Connect-Button.
+	 */
+	@Test
+	public void testConnectButtonClick() {
+		this.objectUnderTest.getConnectButton().click();
+
+		verify(this.presenter).onConnect();
+	}
+
+	/**
+	 * Diese Methode prüft den Click auf den Disconnect-Button.
+	 */
+	@Test
+	public void testDisconnectButtonClick() {
+		this.objectUnderTest.getDisconnectButton().click();
+
+		verify(this.presenter).onDisconnect();
+	}
+
+	/**
 	 * Diese Methode prüft {@link PuzzlesView#addNotification(String)}.
 	 */
 	@Test
 	public void testAddNotification() {
+		this.objectUnderTest.addNotification("testNotification0");
+		this.objectUnderTest.addNotification("testNotification1");
+
+		assertEquals(
+				List.of("testNotification1", "testNotification0"),
+				this.listOutputParagraphs());
+	}
+
+	/**
+	 * Diese Methode listet die Texte aller {@link Paragraph}s aus dem Output-Layout auf.
+	 *
+	 * @return die Liste der Textinhalte
+	 */
+	@Nonnull
+	private List<String> listOutputParagraphs() {
+		return this.objectUnderTest.getOutputLayout().getChildren()
+				.filter(Paragraph.class::isInstance)
+				.map(Paragraph.class::cast)
+				.map(Paragraph::getText)
+				.collect(Collectors.toList());
 	}
 }
