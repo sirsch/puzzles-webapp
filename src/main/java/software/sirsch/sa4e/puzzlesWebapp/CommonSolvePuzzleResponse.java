@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author sirsch
  * @since 26.01.2023
  */
-public class CommonSolvePuzzleResponse {
+public class CommonSolvePuzzleResponse implements HasRows<Integer> {
 
 	/**
 	 * Dieses Feld kann die ID des Servers enthalten.
@@ -97,6 +97,7 @@ public class CommonSolvePuzzleResponse {
 	 *
 	 * @return die Zeile, falls vorhanden
 	 */
+	@Override
 	@CheckForNull
 	public List<Integer> getRow1() {
 		return this.row1;
@@ -107,6 +108,7 @@ public class CommonSolvePuzzleResponse {
 	 *
 	 * @param row1 die zu setzende Zeile
 	 */
+	@Override
 	public void setRow1(@CheckForNull final List<Integer> row1) {
 		this.row1 = row1;
 	}
@@ -116,6 +118,7 @@ public class CommonSolvePuzzleResponse {
 	 *
 	 * @return die Zeile, falls vorhanden
 	 */
+	@Override
 	@CheckForNull
 	public List<Integer> getRow2() {
 		return this.row2;
@@ -126,6 +129,7 @@ public class CommonSolvePuzzleResponse {
 	 *
 	 * @param row2 die zu setzende Zeile
 	 */
+	@Override
 	public void setRow2(@CheckForNull final List<Integer> row2) {
 		this.row2 = row2;
 	}
@@ -135,6 +139,7 @@ public class CommonSolvePuzzleResponse {
 	 *
 	 * @return die Zeile, falls vorhanden
 	 */
+	@Override
 	@CheckForNull
 	public List<Integer> getRow3() {
 		return this.row3;
@@ -145,6 +150,7 @@ public class CommonSolvePuzzleResponse {
 	 *
 	 * @param row3 die zu setzende Zeile
 	 */
+	@Override
 	public void setRow3(@CheckForNull final List<Integer> row3) {
 		this.row3 = row3;
 	}

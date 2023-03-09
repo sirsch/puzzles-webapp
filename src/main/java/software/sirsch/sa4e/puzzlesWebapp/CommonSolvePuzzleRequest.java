@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author sirsch
  * @since 26.01.2023
  */
-public class CommonSolvePuzzleRequest {
+public class CommonSolvePuzzleRequest implements HasRows<String> {
 
 	/**
 	 * Dieses Feld kann die ID des Servers enthalten.
@@ -86,59 +86,35 @@ public class CommonSolvePuzzleRequest {
 		this.raetselId = raetselId;
 	}
 
-	/**
-	 * Diese Methode gibt die erste Zeile zurück.
-	 *
-	 * @return die Zeile, falls vorhanden
-	 */
+	@Override
 	@CheckForNull
 	public List<String> getRow1() {
 		return this.row1;
 	}
 
-	/**
-	 * Diese Methode legt die erste Zeile fest.
-	 *
-	 * @param row1 die zu setzende Zeile
-	 */
+	@Override
 	public void setRow1(@CheckForNull final List<String> row1) {
 		this.row1 = row1;
 	}
 
-	/**
-	 * Diese Methode gibt die zweite Zeile zurück.
-	 *
-	 * @return die Zeile, falls vorhanden
-	 */
+	@Override
 	@CheckForNull
 	public List<String> getRow2() {
 		return this.row2;
 	}
 
-	/**
-	 * Diese Methode legt die zweite Zeile fest.
-	 *
-	 * @param row2 die zu setzende Zeile
-	 */
+	@Override
 	public void setRow2(@CheckForNull final List<String> row2) {
 		this.row2 = row2;
 	}
 
-	/**
-	 * Diese Methode gibt die dritte Zeile zurück.
-	 *
-	 * @return die Zeile, falls vorhanden
-	 */
+	@Override
 	@CheckForNull
 	public List<String> getRow3() {
 		return this.row3;
 	}
 
-	/**
-	 * Diese Methode legt die dritte Zeile fest.
-	 *
-	 * @param row3 die zu setzende Zeile
-	 */
+	@Override
 	public void setRow3(@CheckForNull final List<String> row3) {
 		this.row3 = row3;
 	}
