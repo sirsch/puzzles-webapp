@@ -266,6 +266,22 @@ public class PuzzlesView extends VerticalLayout {
 	}
 
 	/**
+	 * Diese Methode fügt eine Anfrage hinzu.
+	 *
+	 * @param request die hinzuzufügende Anfrage
+	 */
+	public void addRequest(@Nonnull final CommonSolvePuzzleRequest request) {
+	}
+
+	/**
+	 * Diese Methode fügt eine Antwort hinzu.
+	 *
+	 * @param response die hinzuzufügende Antwort
+	 */
+	public void addResponse(@Nonnull final CommonSolvePuzzleResponse response) {
+	}
+
+	/**
 	 * Diese Methode fügt eine neue Benachrichtigung hinzu.
 	 *
 	 * @param notification die hinzuzufügende Benachrichtigung

@@ -2,11 +2,16 @@ package software.sirsch.sa4e.puzzlesWebapp;
 
 import java.util.Optional;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -31,12 +36,17 @@ public class PuzzlesPresenterTest {
 	private Client client;
 
 	/**
-	 * Dieses Feld soll den Mock für die {@link ClientFactory} enthalten.
+	 * Dieses Feld soll den Mock für {@link ClientFactory} enthalten.
 	 */
 	private ClientFactory clientFactory;
 
 	/**
-	 * Dieses Feld soll den Mock für die {@link PuzzlesView} enthalten.
+	 * Dieses Feld soll den Mock für {@link ObjectMapper} enthalten.
+	 */
+	private ObjectMapper objectMapper;
+
+	/**
+	 * Dieses Feld soll den Mock für {@link PuzzlesView} enthalten.
 	 */
 	private PuzzlesView view;
 
@@ -53,9 +63,13 @@ public class PuzzlesPresenterTest {
 		this.settings = mock(Settings.class);
 		this.client = mock(Client.class);
 		this.clientFactory = mock(ClientFactory.class);
+		this.objectMapper = mock(ObjectMapper.class);
 		this.view = mock(PuzzlesView.class);
 
-		this.objectUnderTest = new PuzzlesPresenter(this.settings, this.clientFactory);
+		this.objectUnderTest = new PuzzlesPresenter(
+				this.settings,
+				this.clientFactory,
+				this.objectMapper);
 
 		when(this.clientFactory.create(this.settings, this.objectUnderTest))
 				.thenReturn(this.client);
@@ -132,9 +146,83 @@ public class PuzzlesPresenterTest {
 
 	/**
 	 * Diese Methode prüft {@link PuzzlesPresenter#onMessage(String)}.
+	 *
+	 * @throws JsonProcessingException wird in diesem Testfall nicht erwartet
 	 */
 	@Test
-	public void testOnMessage() {
+	public void testOnMessageRequest() throws JsonProcessingException {
+		CommonSolvePuzzleRequest request = mock(CommonSolvePuzzleRequest.class);
+
+		when(this.objectMapper.readValue("testRequest", CommonSolvePuzzleRequest.class))
+				.thenReturn(request);
+		when(request.validate()).thenReturn(true);
+
+		this.objectUnderTest.onMessage("testRequest");
+
+		verify(this.view).addRequest(request);
+		verify(this.view, never()).addResponse(any());
+		verify(this.view, never()).addNotification(any());
+	}
+
+	/**
+	 * Diese Methode prüft {@link PuzzlesPresenter#onMessage(String)}, wenn die Nachricht nicht
+	 * valide ist.
+	 *
+	 * @throws JsonProcessingException wird in diesem Testfall nicht erwartet
+	 */
+	@Test
+	public void testOnMessageRequestInvalid() throws JsonProcessingException {
+		CommonSolvePuzzleRequest request = mock(CommonSolvePuzzleRequest.class);
+
+		when(this.objectMapper.readValue("testRequest", CommonSolvePuzzleRequest.class))
+				.thenReturn(request);
+		when(request.validate()).thenReturn(false);
+
+		this.objectUnderTest.onMessage("testRequest");
+
+		verify(this.view, never()).addRequest(any());
+		verify(this.view, never()).addResponse(any());
+		verify(this.view).addNotification(notNull());
+	}
+
+	/**
+	 * Diese Methode prüft {@link PuzzlesPresenter#onMessage(String)}, wenn eine
+	 * {@link JsonProcessingException} fliegt.
+	 *
+	 * @throws JsonProcessingException wird in diesem Testfall nicht erwartet
+	 */
+	@Test
+	public void testOnMessageRequestJsonProcessingException() throws JsonProcessingException {
+		JsonProcessingException exception = mock(JsonProcessingException.class);
+
+		when(this.objectMapper.readValue("testRequest", CommonSolvePuzzleRequest.class))
+				.thenThrow(exception);
+
+		this.objectUnderTest.onMessage("testRequest");
+
+		verify(this.view, never()).addRequest(any());
+		verify(this.view, never()).addResponse(any());
+		verify(this.view).addNotification(notNull());
+	}
+
+	/**
+	 * Diese Methode prüft {@link PuzzlesPresenter#onMessage(String)}.
+	 *
+	 * @throws JsonProcessingException wird in diesem Testfall nicht erwartet
+	 */
+	@Test
+	public void testOnMessageResponse() throws JsonProcessingException {
+		CommonSolvePuzzleResponse response = mock(CommonSolvePuzzleResponse.class);
+
+		when(this.objectMapper.readValue("testRequest", CommonSolvePuzzleResponse.class))
+				.thenReturn(response);
+		when(response.validate()).thenReturn(true);
+
+		this.objectUnderTest.onMessage("testRequest");
+
+		verify(this.view, never()).addRequest(any());
+		verify(this.view).addResponse(response);
+		verify(this.view, never()).addNotification(any());
 	}
 
 	/**
