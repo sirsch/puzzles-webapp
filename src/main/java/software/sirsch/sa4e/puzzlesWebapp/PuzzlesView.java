@@ -14,7 +14,6 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -42,13 +41,13 @@ public class PuzzlesView extends VerticalLayout {
 	 * Dieses Feld muss das {@link TextField} für die Broker-URL enthalten.
 	 */
 	@Nonnull
-	private final TextField brokerUrlField = new TextField("MQTT Server URI");
+	private final TextField brokerUrlField = new TextField("MQTT-Server-URI");
 
 	/**
 	 * Dieses Feld muss das {@link TextField} für die Client-ID enthalten.
 	 */
 	@Nonnull
-	private final TextField clientIdTextField = new TextField("Client ID");
+	private final TextField clientIdTextField = new TextField("Client-ID");
 
 	/**
 	 * Dieses Feld muss das {@link TextField} für den Benutzernamen enthalten.
@@ -174,11 +173,29 @@ public class PuzzlesView extends VerticalLayout {
 	 * Diese Methode stellt das Layout dieser Komponente her.
 	 */
 	private void createLayout() {
-		this.add(this.createSettingsHeading());
-		this.add(this.createSettingsForm());
-		this.add(this.createSettingsButtons());
-		this.add(new Hr());
-		this.add(this.outputLayout);
+		this.add(this.createSettingsLayout());
+		this.add(this.createOutputLayout());
+		this.setSizeFull();
+		this.getStyle()
+				.set("background-color", "#0d1219");
+	}
+
+	/**
+	 * Diese Methode erzeugt das Layout für die Einstellungen.
+	 *
+	 * @return das erzeugte Layout
+	 */
+	@Nonnull
+	private Component createSettingsLayout() {
+		VerticalLayout settingsLayout = new VerticalLayout(
+				this.createSettingsHeading(),
+				this.createSettingsForm(),
+				this.createSettingsButtons());
+
+		settingsLayout.getStyle()
+				.set("background-color", "var(--lumo-base-color)")
+				.set("border-radius", "var(--lumo-border-radius-m)");
+		return settingsLayout;
 	}
 
 	/**
@@ -188,8 +205,10 @@ public class PuzzlesView extends VerticalLayout {
 	 */
 	@Nonnull
 	private Component createSettingsHeading() {
-		H3 heading = new H3("Zugangsdaten");
+		H3 heading = new H3("Mit MQTT-Server verbinden");
 
+		heading.getStyle()
+				.set("margin", "0em");
 		return heading;
 	}
 
@@ -229,6 +248,17 @@ public class PuzzlesView extends VerticalLayout {
 		this.disconnectButton.addClickListener(event -> this.presenter.onDisconnect());
 		buttonLayout.add(this.disconnectButton);
 		return buttonLayout;
+	}
+
+	/**
+	 * Diese Methode erzeugt das Layout für die Ausgabe.
+	 *
+	 * @return das Konfigurierte Layout
+	 */
+	@Nonnull
+	private Component createOutputLayout() {
+		this.outputLayout.setPadding(false);
+		return this.outputLayout;
 	}
 
 	/**
@@ -288,7 +318,20 @@ public class PuzzlesView extends VerticalLayout {
 	 */
 	public void addNotification(@Nonnull final String notification) {
 		this.runWithUIAccess(
-				() -> this.outputLayout.addComponentAsFirst(new Paragraph(notification)));
+				() -> this.outputLayout.addComponentAsFirst(this.createNotification(notification)));
+	}
+
+	/**
+	 * Diese Methode erzeugt die Komponente für eine Benachrichtigung.
+	 *
+	 * @param notification die zu verwendende Benachrichtigung
+	 * @return die erzeugte Komponente
+	 */
+	private Component createNotification(@Nonnull final String notification) {
+		Paragraph paragraph = new Paragraph(notification);
+
+		paragraph.getStyle().set("font-style", "italic");
+		return paragraph;
 	}
 
 	/**
