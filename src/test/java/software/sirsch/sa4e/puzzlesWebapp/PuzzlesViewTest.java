@@ -13,6 +13,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.server.Command;
 
+import org.apache.commons.collections4.Factory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -48,6 +50,16 @@ public class PuzzlesViewTest {
 	private Function<Component, Optional<UI>> uiProvider;
 
 	/**
+	 * Dieses Feld soll den Mock für {@link PuzzleMessageComponent} enthalten.
+	 */
+	private PuzzleMessageComponent puzzleMessageComponent;
+
+	/**
+	 * Dieses Feld soll den Mock für die Fabrik für {@link PuzzleMessageComponent} enthalten.
+	 */
+	private Factory<PuzzleMessageComponent> puzzleMessageComponentFactory;
+
+	/**
 	 * Dieses Feld soll das zu testende Objekt enthalten.
 	 */
 	private PuzzlesView objectUnderTest;
@@ -62,12 +74,21 @@ public class PuzzlesViewTest {
 		this.presenter = mock(PuzzlesPresenter.class);
 		this.notificator = mock(Consumer.class);
 		this.uiProvider = mock(Function.class);
+		this.puzzleMessageComponent = spy(PuzzleMessageComponent.class);
+		this.puzzleMessageComponentFactory = mock(Factory.class);
 		doAnswer(invocation -> {
 			invocation.<Command>getArgument(0).execute();
 			return null;
 		}).when(ui).access(notNull());
+		when(this.puzzleMessageComponentFactory.create()).thenReturn(
+				this.puzzleMessageComponent,
+				mock(PuzzleMessageComponent.class));
 
-		this.objectUnderTest = new PuzzlesView(this.presenter, this.notificator, this.uiProvider);
+		this.objectUnderTest = new PuzzlesView(
+				this.presenter,
+				this.notificator,
+				this.uiProvider,
+				this.puzzleMessageComponentFactory);
 
 		when(this.uiProvider.apply(this.objectUnderTest)).thenReturn(Optional.of(ui));
 	}
@@ -186,6 +207,44 @@ public class PuzzlesViewTest {
 	}
 
 	/**
+	 * Diese Methode prüft {@link PuzzlesView#addRequest(CommonSolvePuzzleRequest)}.
+	 */
+	@Test
+	public void testAddRequest() {
+		CommonSolvePuzzleRequest request = mock(CommonSolvePuzzleRequest.class);
+
+		when(request.getServerId()).thenReturn("testServerId");
+		when(request.getRaetselId()).thenReturn(42L);
+
+		this.objectUnderTest.addRequest(request);
+
+		verify(this.puzzleMessageComponent).setPuzzle(request);
+		verify(this.puzzleMessageComponent).setServerId("testServerId");
+		verify(this.puzzleMessageComponent).setPuzzleId(42L);
+		assertEquals(List.of(this.puzzleMessageComponent), this.listOutputComponents());
+	}
+
+	/**
+	 * Diese Methode prüft {@link PuzzlesView#addResponse(CommonSolvePuzzleResponse)}.
+	 */
+	@Test
+	public void testAddResponse() {
+		CommonSolvePuzzleResponse response = mock(CommonSolvePuzzleResponse.class);
+
+		when(response.getServerId()).thenReturn("testServerId");
+		when(response.getRaetselId()).thenReturn(42L);
+		when(response.getTime()).thenReturn(13.0);
+
+		this.objectUnderTest.addResponse(response);
+
+		verify(this.puzzleMessageComponent).setPuzzle(response);
+		verify(this.puzzleMessageComponent).setServerId("testServerId");
+		verify(this.puzzleMessageComponent).setPuzzleId(42L);
+		verify(this.puzzleMessageComponent).setTime(13.0);
+		assertEquals(List.of(this.puzzleMessageComponent), this.listOutputComponents());
+	}
+
+	/**
 	 * Diese Methode prüft {@link PuzzlesView#addNotification(String)}.
 	 */
 	@Test
@@ -196,6 +255,17 @@ public class PuzzlesViewTest {
 		assertEquals(
 				List.of("testNotification1", "testNotification0"),
 				this.listOutputParagraphs());
+	}
+
+	/**
+	 * Diese Methode listet alle Komponenten dem Output-Layout auf.
+	 *
+	 * @return die Liste der Textinhalte
+	 */
+	@Nonnull
+	private List<Component> listOutputComponents() {
+		return this.objectUnderTest.getOutputLayout().getChildren()
+				.collect(Collectors.toList());
 	}
 
 	/**

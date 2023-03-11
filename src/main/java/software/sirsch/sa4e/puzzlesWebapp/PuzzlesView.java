@@ -26,6 +26,7 @@ import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.Command;
 
+import org.apache.commons.collections4.Factory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -117,13 +118,19 @@ public class PuzzlesView extends VerticalLayout {
 	private final Function<Component, Optional<UI>> uiProvider;
 
 	/**
+	 * Dieses Feld muss die Fabrik für {@link PuzzleMessageComponent} enthalten.
+	 */
+	@Nonnull
+	private final Factory<PuzzleMessageComponent> puzzleMessageComponentFactory;
+
+	/**
 	 * Dieser Konstruktor nimmt die interne Initialisierung vor.
 	 *
 	 * @param presenter der zu setzende Presenter
 	 */
 	@Autowired
 	public PuzzlesView(@Nonnull final PuzzlesPresenter presenter) {
-		this(presenter, Notification::show, Component::getUI);
+		this(presenter, Notification::show, Component::getUI, PuzzleMessageComponent::new);
 	}
 
 	/**
@@ -132,15 +139,19 @@ public class PuzzlesView extends VerticalLayout {
 	 * @param presenter der zu setzende Presenter
 	 * @param notificator der zu setzende Notificator
 	 * @param uiProvider der zu setzende UI-Provider
+	 * @param puzzleMessageComponentFactory die zu setzende Fabrik für
+	 * {@link PuzzleMessageComponent}
 	 */
 	protected PuzzlesView(
 			@Nonnull final PuzzlesPresenter presenter,
 			@Nonnull final Consumer<String> notificator,
-			@Nonnull final Function<Component, Optional<UI>> uiProvider) {
+			@Nonnull final Function<Component, Optional<UI>> uiProvider,
+			@Nonnull final Factory<PuzzleMessageComponent> puzzleMessageComponentFactory) {
 
 		this.presenter = presenter;
 		this.notificator = notificator;
 		this.uiProvider = uiProvider;
+		this.puzzleMessageComponentFactory = puzzleMessageComponentFactory;
 
 		this.initializeBinder();
 		this.createLayout();
@@ -301,6 +312,7 @@ public class PuzzlesView extends VerticalLayout {
 	 * @param request die hinzuzufügende Anfrage
 	 */
 	public void addRequest(@Nonnull final CommonSolvePuzzleRequest request) {
+		this.addOutputWithUIAccess(this.createPuzzleMessageComponent(request));
 	}
 
 	/**
@@ -309,6 +321,44 @@ public class PuzzlesView extends VerticalLayout {
 	 * @param response die hinzuzufügende Antwort
 	 */
 	public void addResponse(@Nonnull final CommonSolvePuzzleResponse response) {
+		this.addOutputWithUIAccess(this.createPuzzleMessageComponent(response));
+	}
+
+	/**
+	 * Diese Methode erzeugt eine {@link PuzzleMessageComponent} für eine Anfrage.
+	 *
+	 * @param request die zu verwendende Anfrage
+	 * @return die erzeugte Komponente
+	 */
+	@Nonnull
+	private Component createPuzzleMessageComponent(
+			@Nonnull final CommonSolvePuzzleRequest request) {
+
+		PuzzleMessageComponent component = this.puzzleMessageComponentFactory.create();
+
+		component.setPuzzle(request);
+		component.setServerId(request.getServerId());
+		component.setPuzzleId(request.getRaetselId());
+		return component;
+	}
+
+	/**
+	 * Diese Methode erzeugt eine {@link PuzzleMessageComponent} für eine Antwort.
+	 *
+	 * @param response die zu verwendende Antwort
+	 * @return die erzeugte Komponente
+	 */
+	@Nonnull
+	private Component createPuzzleMessageComponent(
+			@Nonnull final CommonSolvePuzzleResponse response) {
+
+		PuzzleMessageComponent component = this.puzzleMessageComponentFactory.create();
+
+		component.setPuzzle(response);
+		component.setServerId(response.getServerId());
+		component.setPuzzleId(response.getRaetselId());
+		component.setTime(response.getTime());
+		return component;
 	}
 
 	/**
@@ -317,8 +367,7 @@ public class PuzzlesView extends VerticalLayout {
 	 * @param notification die hinzuzufügende Benachrichtigung
 	 */
 	public void addNotification(@Nonnull final String notification) {
-		this.runWithUIAccess(
-				() -> this.outputLayout.addComponentAsFirst(this.createNotification(notification)));
+		this.addOutputWithUIAccess(this.createNotification(notification));
 	}
 
 	/**
@@ -332,6 +381,19 @@ public class PuzzlesView extends VerticalLayout {
 
 		paragraph.getStyle().set("font-style", "italic");
 		return paragraph;
+	}
+
+	/**
+	 * Diese Methode fügt eine Komponente der Ausgabe an.
+	 *
+	 * <p>
+	 *     Dabei wird eine Synchronisation mit der UI vorgenommen.
+	 * </p>
+	 *
+	 * @param component die anzufügende Komponente
+	 */
+	private void addOutputWithUIAccess(@Nonnull final Component component) {
+		this.runWithUIAccess(() -> this.outputLayout.addComponentAsFirst(component));
 	}
 
 	/**
