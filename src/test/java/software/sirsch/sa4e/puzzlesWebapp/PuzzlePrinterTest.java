@@ -86,11 +86,11 @@ public class PuzzlePrinterTest {
 	 */
 	@Nonnull
 	private CommonSolvePuzzleResponse generateResponse() {
-		CommonSolvePuzzleResponse request = new CommonSolvePuzzleResponse();
+		CommonSolvePuzzleResponse response = new CommonSolvePuzzleResponse();
 
-		request.setRow1(List.of(1, 1, 1));
-		request.setRow2(List.of(12, 2, 2));
-		request.setRow3(List.of(2, 2, 212));
-		return request;
+		response.setRow1(List.of(1, 1, 1));
+		response.setRow2(List.of(12, 2, 2));
+		response.setRow3(List.of(2, 2, 212));
+		return response;
 	}
 }

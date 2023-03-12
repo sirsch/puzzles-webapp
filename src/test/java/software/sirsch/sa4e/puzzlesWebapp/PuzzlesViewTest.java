@@ -18,8 +18,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -80,6 +82,8 @@ public class PuzzlesViewTest {
 			invocation.<Command>getArgument(0).execute();
 			return null;
 		}).when(ui).access(notNull());
+		when(this.uiProvider.apply(any())).thenReturn(Optional.empty());
+		doNothing().when(this.puzzleMessageComponent).setPuzzle(any());
 		when(this.puzzleMessageComponentFactory.create()).thenReturn(
 				this.puzzleMessageComponent,
 				mock(PuzzleMessageComponent.class));

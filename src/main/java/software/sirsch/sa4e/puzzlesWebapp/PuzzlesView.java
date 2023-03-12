@@ -188,7 +188,8 @@ public class PuzzlesView extends VerticalLayout {
 		this.add(this.createOutputLayout());
 		this.setSizeFull();
 		this.getStyle()
-				.set("background-color", "#0d1219");
+				.set("background-color", "#0d1219")
+				.set("overflow", "auto");
 	}
 
 	/**
@@ -381,7 +382,9 @@ public class PuzzlesView extends VerticalLayout {
 	private Component createNotification(@Nonnull final String notification) {
 		Paragraph paragraph = new Paragraph(notification);
 
-		paragraph.getStyle().set("font-style", "italic");
+		paragraph.getStyle()
+				.set("font-style", "italic")
+				.set("margin", "0em");
 		return paragraph;
 	}
 
@@ -404,7 +407,8 @@ public class PuzzlesView extends VerticalLayout {
 	 * @param command das auszuführende Kommando
 	 */
 	private void runWithUIAccess(@Nonnull final Command command) {
-		this.uiProvider.apply(this).ifPresent(ui -> ui.access(command));
+		this.uiProvider.apply(this)
+				.ifPresentOrElse(ui -> ui.access(command), () -> command.execute());
 	}
 
 	/**
