@@ -336,6 +336,7 @@ public class PuzzlesView extends VerticalLayout {
 
 		PuzzleMessageComponent component = this.puzzleMessageComponentFactory.create();
 
+		component.setHeadline("Rätsel von " + request.getServerId());
 		component.setPuzzle(request);
 		component.setServerId(request.getServerId());
 		component.setPuzzleId(request.getRaetselId());
@@ -354,6 +355,7 @@ public class PuzzlesView extends VerticalLayout {
 
 		PuzzleMessageComponent component = this.puzzleMessageComponentFactory.create();
 
+		component.setHeadline("Lösung von " + response.getServerId());
 		component.setPuzzle(response);
 		component.setServerId(response.getServerId());
 		component.setPuzzleId(response.getRaetselId());

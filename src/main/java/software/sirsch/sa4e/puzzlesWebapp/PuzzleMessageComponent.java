@@ -13,6 +13,14 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 public class PuzzleMessageComponent extends VerticalLayout {
 
 	/**
+	 * Diese Methode legt die Überschrift fest.
+	 *
+	 * @param headline die zu setzende Überschrift
+	 */
+	public void setHeadline(@CheckForNull final String headline) {
+	}
+
+	/**
 	 * Diese Methode legt das Rätsel fest.
 	 *
 	 * @param puzzle das zu setzende Rätsel

@@ -218,6 +218,7 @@ public class PuzzlesViewTest {
 
 		this.objectUnderTest.addRequest(request);
 
+		verify(this.puzzleMessageComponent).setHeadline("Rätsel von testServerId");
 		verify(this.puzzleMessageComponent).setPuzzle(request);
 		verify(this.puzzleMessageComponent).setServerId("testServerId");
 		verify(this.puzzleMessageComponent).setPuzzleId(42L);
@@ -237,6 +238,7 @@ public class PuzzlesViewTest {
 
 		this.objectUnderTest.addResponse(response);
 
+		verify(this.puzzleMessageComponent).setHeadline("Lösung von testServerId");
 		verify(this.puzzleMessageComponent).setPuzzle(response);
 		verify(this.puzzleMessageComponent).setServerId("testServerId");
 		verify(this.puzzleMessageComponent).setPuzzleId(42L);
