@@ -194,4 +194,64 @@ public class PuzzleMessageComponent extends VerticalLayout {
 						.orElse(null));
 		this.timeRow.setVisible(time != null);
 	}
+
+	/**
+	 * Diese Methode gibt {@link #headline} zum Testen zurück.
+	 *
+	 * @return die Komponente
+	 */
+	@Nonnull
+	protected H4 getHeadline() {
+		return this.headline;
+	}
+
+	/**
+	 * Diese Methode gibt {@link #serverId} zum Testen zurück.
+	 *
+	 * @return die Komponente
+	 */
+	@Nonnull
+	protected Div getServerId() {
+		return this.serverId;
+	}
+
+	/**
+	 * Diese Methode gibt {@link #puzzleId} zum Testen zurück.
+	 *
+	 * @return die Komponente
+	 */
+	@Nonnull
+	protected Div getPuzzleId() {
+		return this.puzzleId;
+	}
+
+	/**
+	 * Diese Methode gibt {@link #time} zum Testen zurück.
+	 *
+	 * @return die Komponente
+	 */
+	@Nonnull
+	protected Div getTime() {
+		return this.time;
+	}
+
+	/**
+	 * Diese Methode gibt {@link #puzzle} zum Testen zurück.
+	 *
+	 * @return die Komponente
+	 */
+	@Nonnull
+	protected Pre getPuzzle() {
+		return this.puzzle;
+	}
+
+	/**
+	 * Diese Methode gibt {@link #timeRow} zum Testen zurück.
+	 *
+	 * @return die Komponente
+	 */
+	@Nonnull
+	protected Div getTimeRow() {
+		return this.timeRow;
+	}
 }
