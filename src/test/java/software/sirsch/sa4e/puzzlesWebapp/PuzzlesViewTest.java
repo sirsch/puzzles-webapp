@@ -18,6 +18,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.doAnswer;
@@ -82,7 +84,7 @@ public class PuzzlesViewTest {
 			invocation.<Command>getArgument(0).execute();
 			return null;
 		}).when(ui).access(notNull());
-		when(this.uiProvider.apply(any())).thenReturn(Optional.empty());
+		when(this.uiProvider.apply(any())).thenReturn(Optional.of(ui));
 		doNothing().when(this.puzzleMessageComponent).setPuzzle(any());
 		when(this.puzzleMessageComponentFactory.create()).thenReturn(
 				this.puzzleMessageComponent,
@@ -211,12 +213,35 @@ public class PuzzlesViewTest {
 	}
 
 	/**
+	 * Diese Methode prüft {@link PuzzlesView#setConnected(boolean)} mit {@code true}.
+	 */
+	@Test
+	public void testSetConnectedTrue() {
+		this.objectUnderTest.setConnected(true);
+
+		assertFalse(this.objectUnderTest.getConnectButton().isEnabled());
+		assertTrue(this.objectUnderTest.getDisconnectButton().isEnabled());
+	}
+
+	/**
+	 * Diese Methode prüft {@link PuzzlesView#setConnected(boolean)} mit {@code false}.
+	 */
+	@Test
+	public void testSetConnectedFalse() {
+		this.objectUnderTest.setConnected(false);
+
+		assertTrue(this.objectUnderTest.getConnectButton().isEnabled());
+		assertFalse(this.objectUnderTest.getDisconnectButton().isEnabled());
+	}
+
+	/**
 	 * Diese Methode prüft {@link PuzzlesView#addRequest(CommonSolvePuzzleRequest)}.
 	 */
 	@Test
 	public void testAddRequest() {
 		CommonSolvePuzzleRequest request = mock(CommonSolvePuzzleRequest.class);
 
+		when(this.uiProvider.apply(any())).thenReturn(Optional.empty());
 		when(request.getServerId()).thenReturn("testServerId");
 		when(request.getRaetselId()).thenReturn(42L);
 

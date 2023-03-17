@@ -308,6 +308,16 @@ public class PuzzlesView extends VerticalLayout {
 	}
 
 	/**
+	 * Diese Methode legt fest, ob die Ansicht sich im Zustand verbunden befindet.
+	 *
+	 * @param connected der zu setzende Zustand
+	 */
+	public void setConnected(final boolean connected) {
+		this.connectButton.setEnabled(!connected);
+		this.disconnectButton.setEnabled(connected);
+	}
+
+	/**
 	 * Diese Methode fügt eine Anfrage hinzu.
 	 *
 	 * @param request die hinzuzufügende Anfrage

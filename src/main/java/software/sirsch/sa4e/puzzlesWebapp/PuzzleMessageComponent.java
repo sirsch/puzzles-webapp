@@ -13,6 +13,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 import org.apache.commons.collections4.Factory;
 
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+
 /**
  * Diese Klasse stellt eine GUI-Komponente zur Anzeige einer Rätselnachricht bereit.
  *
@@ -86,6 +88,7 @@ public class PuzzleMessageComponent extends VerticalLayout {
 		this.getStyle()
 				.set("background-color", "#121a24")
 				.set("border-radius", "var(--lumo-border-radius-m)");
+		this.updateTimeVisibility();
 	}
 
 	/**
@@ -192,7 +195,15 @@ public class PuzzleMessageComponent extends VerticalLayout {
 				Optional.ofNullable(time)
 						.map(Object::toString)
 						.orElse(null));
-		this.timeRow.setVisible(time != null);
+		this.updateTimeVisibility();
+	}
+
+	/**
+	 * Diese Methode aktualisiert die Sichtbarkeit der {@link #timeRow} abhängig davon ob
+	 * {@link #time} einen Text enthält.
+	 */
+	private void updateTimeVisibility() {
+		this.timeRow.setVisible(isNotEmpty(this.time.getText()));
 	}
 
 	/**
