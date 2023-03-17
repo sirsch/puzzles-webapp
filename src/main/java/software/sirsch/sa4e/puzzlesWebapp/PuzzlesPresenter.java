@@ -84,14 +84,16 @@ public class PuzzlesPresenter implements ClientListener {
 	public void init(@Nonnull final PuzzlesView puzzlesView) {
 		this.view = puzzlesView;
 		this.view.readSettings(this.settings);
+		this.updateViewConnected();
 	}
 
 	/**
 	 * Diese Methode behandelt den Click auf den Verbinden-Button.
 	 */
 	public void onConnect() {
-		this.onDisconnect();
+		this.disconnect();
 		this.connect();
+		this.updateViewConnected();
 	}
 
 	/**
@@ -117,10 +119,25 @@ public class PuzzlesPresenter implements ClientListener {
 	 * Diese Methode behandelt den Click auf den Trennen-Button.
 	 */
 	public void onDisconnect() {
+		this.disconnect();
+		this.updateViewConnected();
+	}
+
+	/**
+	 * Diese Methode trennt eine Verbindung, falls vorhanden.
+	 */
+	private void disconnect() {
 		if (this.client != null) {
 			this.runWithErrorHandler(this.client::disconnect);
 			this.client = null;
 		}
+	}
+
+	/**
+	 * Diese Methode aktualisiert die Visualisierung des Verbindungszustandes.
+	 */
+	private void updateViewConnected() {
+		this.requireView().setConnected(this.client != null);
 	}
 
 	/**

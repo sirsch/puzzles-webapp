@@ -14,6 +14,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -74,6 +75,8 @@ public class PuzzlesPresenterTest {
 		when(this.clientFactory.create(this.settings, this.objectUnderTest))
 				.thenReturn(this.client);
 		this.objectUnderTest.init(this.view);
+		verify(this.view).setConnected(false);
+		reset(this.view);
 	}
 
 	/**
@@ -81,8 +84,14 @@ public class PuzzlesPresenterTest {
 	 */
 	@Test
 	public void testInit() {
-		/* init wird in #setUp aufgerufen */
+		this.objectUnderTest = new PuzzlesPresenter(
+				this.settings,
+				this.clientFactory,
+				this.objectMapper);
 
+		this.objectUnderTest.init(this.view);
+
+		verify(this.view).setConnected(false);
 		verify(this.view).readSettings(this.settings);
 	}
 
@@ -109,6 +118,7 @@ public class PuzzlesPresenterTest {
 
 		verify(this.clientFactory).create(this.settings, this.objectUnderTest);
 		verify(this.view, never()).addNotification(anyString());
+		verify(this.view).setConnected(true);
 	}
 
 	/**
@@ -128,6 +138,7 @@ public class PuzzlesPresenterTest {
 		this.objectUnderTest.onConnect();
 
 		verify(this.view).addNotification("testMessage");
+		verify(this.view).setConnected(false);
 	}
 
 	/**
@@ -138,10 +149,12 @@ public class PuzzlesPresenterTest {
 		when(this.view.writeSettings(this.settings))
 				.thenReturn(Optional.of(this.settings));
 		this.objectUnderTest.onConnect();
+		verify(this.view).setConnected(true);
 
 		this.objectUnderTest.onDisconnect();
 
 		verify(this.client).disconnect();
+		verify(this.view).setConnected(false);
 	}
 
 	/**
